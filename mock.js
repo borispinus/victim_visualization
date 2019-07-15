@@ -1,80 +1,80 @@
-const totalData = [
+const offlineData = [
   {
-    name: "home",
-    number: 47,
+    name: "Дом",
+    number: 20,
     sentencedPercentage: 70,
-    type: 'total'
+    type: 'offline'
   },
   {
-    name: "work",
-    number: 13,
+    name: "Работа",
+    number: 1,
     sentencedPercentage: 20,
-    type: 'total'
+    type: 'offline'
   },
   {
-    name: "yard",
-    number: 4,
+    name: "Двор",
+    number: 20,
     sentencedPercentage: 16,
-    type: 'total'
+    type: 'offline'
   },
   {
-    name: "street",
-    number: 50,
+    name: "Улица",
+    number: 59,
     sentencedPercentage: 18,
-    type: 'total'
+    type: 'offline'
   }
 ];
 
 const onlineData = [
   {
-    name: "home",
-    number: 10,
+    name: "Дом",
+    number: 80,
     sentencedPercentage: 80,
     type: 'online',
   },
   {
-    name: "work",
-    number: 5,
+    name: "Работа",
+    number: 15,
     sentencedPercentage: 30,
     type: 'online',
   },
   {
-    name: "yard",
-    number: 4,
+    name: "Двор",
+    number: 2,
     sentencedPercentage: 56,
     type: 'online',
   },
   {
-    name: "street",
-    number: 40,
+    name: "Улица",
+    number: 3,
     sentencedPercentage: 11,
     type: 'online',
   }
 ];
-const offlineData = [
+const totalData = [
   {
-    name: "home",
+    name: "Дом",
     number: 37,
     sentencedPercentage: 0,
-    type: 'offline',
+    type: 'total',
   },
   {
-    name: "work",
+    name: "Работа",
     number: 8,
     sentencedPercentage: 93,
-    type: 'offline',
+    type: 'total',
   },
   {
-    name: "yard",
-    number: 0,
-    sentencedPercentage: 0,
-    type: 'offline',
+    name: "Двор",
+    number: 5,
+    sentencedPercentage: 2,
+    type: 'total',
   },
   {
-    name: "street",
+    name: "Улица",
     number: 10,
     sentencedPercentage: 20,
-    type: 'offline',
+    type: 'total',
   }
 ];
 

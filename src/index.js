@@ -12,6 +12,10 @@ const WIDTH = 0.8 * window.innerWidth;
 const HEIGHT = 0.8 * window.innerHeight;
 const MAX_RADIUS = 100;
 
+const TOTAL_COLOR = "#97BA86";
+const ONLINE_COLOR = "#ECB031";
+const OFFLINE_COLOR = "#31C7EC";
+
 const initialType = "total";
 const t = d3.transition().duration(1500);
 
@@ -51,6 +55,25 @@ d3.select(".combine-btn").on("click", () => {
   render("total");
 });
 
+const transformByType = d => {
+  let x = -300;
+  if (d.type === "total") {
+    x = 0;
+  } else if (d.type === "online") {
+    x = 300;
+  }
+  return `translate(${x}, 0)`;
+};
+
+const colorByType = d => {
+  if (d.type === "total") {
+    return TOTAL_COLOR;
+  } else if (d.type === "online") {
+    return ONLINE_COLOR;
+  }
+  return OFFLINE_COLOR;
+};
+
 const render = type => {
   const bubbles = g.selectAll(".bubble").data(data[type]);
 
@@ -60,12 +83,12 @@ const render = type => {
     .on("mouseover", function() {
       d3.select(this).raise();
       d3.select(this)
-        .select(".popover")
+        .selectAll(".popover-el")
         .style("display", null);
     })
     .on("mouseout", function() {
       d3.select(this)
-        .select(".popover")
+        .selectAll(".popover-el")
         .style("display", "none");
     })
     .attr("class", "bubble");
@@ -77,43 +100,48 @@ const render = type => {
     .duration(200)
     .remove();
 
-  bubblesEnter
-    .append("circle")
-    .merge(bubbles.select("circle"))
-    .transition(t)
-    .attr("transform", d => {
-      let x = -300;
-      if (d.type === "total") {
-        x = 0;
-      } else if (d.type === "online") {
-        x = 300;
-      }
-      return `translate(${x}, 0)`;
-    })
-    .attr("r", ({ number }) => radiusScale(number))
-    .attr("fill", "#C7A28F")
-    .duration(200);
+  const circles = bubblesEnter.append("circle").merge(bubbles.select("circle"));
+  const rects = bubblesEnter.append("rect").merge(bubbles.select("rect"));
 
-  bubblesEnter
-    .append("rect")
-    .merge(bubbles.select("rect"))
+  const newTexts = bubblesEnter.append("g").attr("class", "text-group");
+  newTexts
+    .append("text")
+    .attr("class", "text-category")
+    .text(d => d.name)
+    .attr('y', '1.5rem')
+    .attr('x', 6);
+  newTexts
+    .append("text")
+    .attr("class", "text-number")
+    .text(d => `${d.number}% от общего количества`)
+    .attr('y', '3rem')
+    .attr('x', 6)
+    .style('font-size', 10);
+
+  const texts = newTexts
+    .merge(bubbles.select("g"))
+    .attr("class", "popover-el")
+    .style("display", "none");
+
+  circles
     .transition(t)
-    .attr("transform", d => {
-      let x = -300;
-      if (d.type === "total") {
-        x = 0;
-      } else if (d.type === "online") {
-        x = 300;
-      }
-      return `translate(${x}, 0)`;
-    })
+    .attr("transform", transformByType)
+    .attr("r", ({ number }) => radiusScale(number))
+    .attr("fill", colorByType)
+    .duration(200);
+  rects
+    .transition(t)
+    .attr("transform", transformByType)
     .attr("class", "popover")
+    .attr("class", "popover-el")
     .style("display", "none")
     .attr("width", 200)
     .attr("height", 100)
     .attr("stroke", "#1a1f01")
     .attr("fill", "#fff")
     .duration(200);
+
+  texts.transition(t).attr("transform", transformByType);
 
   simulation
     .nodes(data[type])
