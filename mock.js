@@ -1,85 +1,93 @@
 const offlineData = [
   {
+    id: "home_offline",
     name: "Дом",
-    number: 20,
+    number: 10,
     sentencedPercentage: 70,
-    type: 'offline'
+    type: "offline"
   },
   {
+    id: "work_offline",
     name: "Работа",
     number: 1,
     sentencedPercentage: 20,
-    type: 'offline'
+    type: "offline"
   },
   {
+    id: "yard_offline",
     name: "Двор",
-    number: 20,
+    number: 10,
     sentencedPercentage: 16,
-    type: 'offline'
+    type: "offline"
   },
   {
+    id: "street_offline",
     name: "Улица",
-    number: 59,
+    number: 29,
     sentencedPercentage: 18,
-    type: 'offline'
+    type: "offline"
   }
 ];
 
 const onlineData = [
   {
+    id: "home_online",
     name: "Дом",
-    number: 80,
+    number: 40,
     sentencedPercentage: 80,
-    type: 'online',
+    type: "online"
   },
   {
+    id: "work_online",
     name: "Работа",
-    number: 15,
-    sentencedPercentage: 30,
-    type: 'online',
+    number: 7,
+    sentencedPercentage: 15,
+    type: "online"
   },
   {
+    id: "yard_online",
     name: "Двор",
     number: 2,
     sentencedPercentage: 56,
-    type: 'online',
+    type: "online"
   },
   {
+    id: "street_online",
     name: "Улица",
-    number: 3,
+    number: 1,
     sentencedPercentage: 11,
-    type: 'online',
+    type: "online"
   }
 ];
 const totalData = [
   {
+    id: "home_total",
     name: "Дом",
-    number: 37,
+    number: 50,
     sentencedPercentage: 0,
-    type: 'total',
+    type: "total"
   },
   {
+    id: "work_total",
     name: "Работа",
     number: 8,
     sentencedPercentage: 93,
-    type: 'total',
+    type: "total"
   },
   {
+    id: "yard_total",
     name: "Двор",
-    number: 5,
+    number: 12,
     sentencedPercentage: 2,
-    type: 'total',
+    type: "total"
   },
   {
+    id: "street_total",
     name: "Улица",
-    number: 10,
+    number: 30,
     sentencedPercentage: 20,
-    type: 'total',
+    type: "total"
   }
 ];
 
-export {
-  totalData,
-  offlineData,
-  onlineData
-}
+export { totalData, offlineData, onlineData };
