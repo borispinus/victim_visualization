@@ -73,7 +73,7 @@ const colorByType = d => {
 };
 
 const render = type => {
-  console.log(data[type])
+
   const bubbles = g.selectAll(".bubble").data(data[type], (d) => d.id);
 
   const bubblesEnter = bubbles
@@ -123,8 +123,6 @@ const render = type => {
     .merge(newTexts)
     .attr("class", "popover-el")
     .style("display", "none");
-
-  console.log(circles, texts);
 
   circles
     .transition(t)
