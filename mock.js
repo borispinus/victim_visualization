@@ -1,177 +1,80 @@
-const offlineData = [
-  {
-    id: "home_offline",
-    name: "Дом",
-    number: 5,
-    sentencedPercentage: 70,
-    type: "offline"
-  },
-  {
-    id: "work_offline",
-    name: "Работа",
-    number: 1,
-    sentencedPercentage: 20,
-    type: "offline"
-  },
-  {
-    id: "yard_offline",
-    name: "Двор",
-    number: 9,
-    sentencedPercentage: 16,
-    type: "offline"
-  },
-  {
-    id: "street_offline",
-    name: "Улица",
-    number: 20,
-    sentencedPercentage: 18,
-    type: "offline"
-  },
-  {
-    id: "public_offline",
-    name: "Общественные здания",
-    number: 5,
-    sentencedPercentage: 11,
-    type: "offline"
-  },
-  {
-    id: "friends_offline",
-    name: "У знакомых или родственников",
-    number: 3,
-    sentencedPercentage: 11,
-    type: "offline"
-  },
-  {
-    id: "auto_offline",
-    name: "У знакомых или родственников",
-    number: 2,
-    sentencedPercentage: 11,
-    type: "offline"
-  },
-  {
-    id: "other_offline",
-    name: "Другое",
-    number: 5,
-    sentencedPercentage: 11,
-    type: "offline"
-  },
+const data = [
+  { damage: 9637941, number: 407, type: 6, place: 13 },
+  { damage: 2235385, number: 88, type: 3, place: 4 },
+  { damage: 3537067, number: 137, type: 5, place: 1 },
+  { damage: 1541105, number: 81, type: 4, place: 5 },
+  { damage: 4272004, number: 33, type: 4, place: 2 },
+  { damage: 4364842, number: 133, type: 4, place: 1 },
+  { damage: 3327458, number: 49, type: 3, place: 5 },
+  { damage: 6823565, number: 136, type: 5, place: 5 },
+  { damage: 940628, number: 48, type: 4, place: 7 },
+  { damage: 1948779, number: 51, type: 3, place: 1 },
+  { damage: 422389, number: 24, type: 3, place: 3 },
+  { damage: 8208035, number: 99, type: 4, place: 4 },
+  { damage: 315007, number: 20, type: 7, place: 1 },
+  { damage: 9501808, number: 19, type: 5, place: 11 },
+  { damage: 177950, number: 13, type: 4, place: 10 },
+  { damage: 1263975, number: 38, type: 7, place: 13 },
+  { damage: 77002, number: 5, type: 8, place: 5 },
+  { damage: 306311, number: 12, type: 1, place: 4 },
+  { damage: 993032, number: 71, type: 4, place: 8 },
+  { damage: 292015, number: 9, type: 8, place: 13 },
+  { damage: 5508353, number: 69, type: 5, place: 4 },
+  { damage: 1090701, number: 14, type: 3, place: 2 },
+  { damage: 251101, number: 19, type: 7, place: 3 },
+  { damage: 1650000, number: 2, type: 7, place: 14 },
+  { damage: 3686924, number: 66, type: 5, place: 2 },
+  { damage: 381309, number: 23, type: 7, place: 4 },
+  { damage: 1083171, number: 55, type: 4, place: 3 },
+  { damage: 401240, number: 13, type: 4, place: 13 },
+  { damage: 622007, number: 9, type: 8, place: 4 },
+  { damage: 4852737, number: 33, type: 5, place: 13 },
+  { damage: 327717, number: 14, type: 5, place: 14 },
+  { damage: 2149316, number: 17, type: 2, place: 13 },
+  { damage: 113901, number: 5, type: 5, place: 9 },
+  { damage: 70400, number: 2, type: 8, place: 10 },
+  { damage: 226000, number: 9, type: 4, place: 6 },
+  { damage: 199701, number: 18, type: 5, place: 8 },
+  { damage: 324550, number: 4, type: 8, place: 2 },
+  { damage: 340853, number: 22, type: 3, place: 8 },
+  { damage: 1009403, number: 16, type: 5, place: 6 },
+  { damage: 195500, number: 3, type: 3, place: 12 },
+  { damage: 170350, number: 4, type: 7, place: 2 },
+  { damage: 6000, number: 1, type: 7, place: 10 },
+  { damage: 1231006, number: 6, type: 3, place: 13 },
+  { damage: 13500, number: 2, type: 3, place: 9 },
+  { damage: 574600, number: 6, type: 2, place: 1 },
+  { damage: 53703, number: 6, type: 7, place: 5 },
+  { damage: 34202, number: 4, type: 5, place: 10 },
+  { damage: 161006, number: 10, type: 5, place: 3 },
+  { damage: 6000, number: 2, type: 8, place: 3 },
+  { damage: 90003, number: 5, type: 8, place: 1 },
+  { damage: 82008, number: 5, type: 3, place: 11 },
+  { damage: 1, number: 1, type: 7, place: 11 },
+  { damage: 104000, number: 3, type: 4, place: 12 },
+  { damage: 65100, number: 3, type: 3, place: 7 },
+  { damage: 457008, number: 10, type: 7, place: 7 },
+  { damage: 362005, number: 11, type: 3, place: 6 },
+  { damage: 38000, number: 1, type: 8, place: 9 },
+  { damage: 15000, number: 2, type: 7, place: 8 },
+  { damage: 22000, number: 3, type: 3, place: 14 },
+  { damage: 8300, number: 3, type: 8, place: 7 },
+  { damage: 236500, number: 5, type: 2, place: 4 },
+  { damage: 1, number: 1, type: 7, place: 12 },
+  { damage: 203, number: 2, type: 2, place: 3 },
+  { damage: 5, number: 2, type: 4, place: 11 },
+  { damage: 39999, number: 5, type: 4, place: 14 },
+  { damage: 238000, number: 5, type: 5, place: 7 },
+  { damage: 78500, number: 3, type: 1, place: 1 },
+  { damage: 465000, number: 2, type: 5, place: 12 },
+  { damage: 20000, number: 1, type: 8, place: 6 },
+  { damage: 12000, number: 1, type: 2, place: 5 },
+  { damage: 5000, number: 1, type: 4, place: 9 },
+  { damage: 2, number: 1, type: 1, place: 5 },
+  { damage: 22000, number: 1, type: 2, place: 9 },
+  { damage: 15000, number: 1, type: 1, place: 2 },
+  { damage: 40000, number: 1, type: 1, place: 3 },
+  { damage: 11500, number: 1, type: 2, place: 6 }
 ];
 
-const onlineData = [
-  {
-    id: "home_online",
-    name: "Дом",
-    number: 25,
-    sentencedPercentage: 80,
-    type: "online"
-  },
-  {
-    id: "work_online",
-    name: "Работа",
-    number: 7,
-    sentencedPercentage: 15,
-    type: "online"
-  },
-  {
-    id: "yard_online",
-    name: "Двор",
-    number: 2,
-    sentencedPercentage: 56,
-    type: "online"
-  },
-  {
-    id: "street_online",
-    name: "Улица",
-    number: 1,
-    sentencedPercentage: 11,
-    type: "online"
-  },
-  {
-    id: "public_online",
-    name: "Общественные здания",
-    number: 5,
-    sentencedPercentage: 11,
-    type: "online"
-  },
-  {
-    id: "friends_online",
-    name: "У знакомых или родственников",
-    number: 3,
-    sentencedPercentage: 11,
-    type: "online"
-  },
-  {
-    id: "auto_online",
-    name: "У знакомых или родственников",
-    number: 2,
-    sentencedPercentage: 11,
-    type: "online"
-  },
-  {
-    id: "other_online",
-    name: "Другое",
-    number: 5,
-    sentencedPercentage: 11,
-    type: "online"
-  },
-];
-const totalData = [
-  {
-    id: "home_total",
-    name: "Дом",
-    number: 50,
-    sentencedPercentage: 0,
-    type: "total"
-  },
-  {
-    id: "work_total",
-    name: "Работа",
-    number: 8,
-    sentencedPercentage: 93,
-    type: "total"
-  },
-  {
-    id: "yard_total",
-    name: "Двор",
-    number: 12,
-    sentencedPercentage: 2,
-    type: "total"
-  },
-  {
-    id: "street_total",
-    name: "Улица",
-    number: 30,
-    sentencedPercentage: 20,
-    type: "total"
-  },
-  {
-    id: "public_total",
-    name: "Общественные здания",
-    number: 5,
-    sentencedPercentage: 11,
-    type: "total"
-  },
-  {
-    id: "friends_total",
-    name: "У знакомых или родственников",
-    number: 3,
-    sentencedPercentage: 11,
-    type: "total"
-  },
-  {
-    id: "auto_total",
-    name: "У знакомых или родственников",
-    number: 2,
-    sentencedPercentage: 11,
-    type: "total"
-  },
-  {
-    id: "other_total",
-    name: "Другое",
-    number: 5,
-    sentencedPercentage: 11,
-    type: "total"
-  },
-];
-
-export { totalData, offlineData, onlineData };
+export default data;
