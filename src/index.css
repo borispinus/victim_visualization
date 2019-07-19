@@ -1,6 +1,15 @@
 html {
   font-size: 14px;
 }
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 svg {
   font-family: 'Roboto', sans-serif;
+  padding-top: 100px;
+  padding-left: 100px;
+  overflow: visible;
 }
