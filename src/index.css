@@ -13,3 +13,6 @@ svg {
   padding-left: 100px;
   overflow: visible;
 }
+.x-axis .tick:last-of-type {
+  font-weight: bold;
+}

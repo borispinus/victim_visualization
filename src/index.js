@@ -3,7 +3,7 @@ import { data, types, places } from "../mock";
 
 import "./index.css";
 
-const WIDTH = 0.8 * window.outerWidth - 100;
+const WIDTH = 0.5 * window.outerWidth - 100;
 const HEIGHT = 0.8 * window.outerHeight - 200;
 
 const PLACES_NUMBER = places.length;
@@ -21,15 +21,20 @@ const svg = d3
   .attr("width", WIDTH)
   .attr("height", HEIGHT);
 
-const numberRadiusScale = d3
+const numberScale = d3
   .scaleLinear()
-  .domain([0, d3.max(data, d => d.number)])
+  .domain([0, d3.max(data, d => Math.sqrt(d.number))])
   .range([0, MAX_RADIUS]);
 
-const damageRadiusScale = d3
+const damageScale = d3
   .scaleLinear()
-  .domain([0, d3.max(data, d => d.damageAverage)])
+  .domain([0, d3.max(data, d => Math.sqrt(d.damageAverage))])
   .range([0, MAX_RADIUS]);
+
+const resultScale = d3
+  .scaleLinear()
+  .domain([0, d3.max(data, d => Math.sqrt(d.requestedPercentage))])
+  .range([0, HEIGHT]);
 
 const ticked = () => {
   d3.selectAll(".bubble").attr("transform", d => {
@@ -40,15 +45,16 @@ const ticked = () => {
 const simulation = d3.forceSimulation(data).on("tick", ticked);
 
 const colorByType = d => {
+  if (d.place === 9) return "#f58a42";
   return COLOR;
 };
 
 const forceX = d => {
-  return (d.place * WIDTH) / PLACES_NUMBER;
+  return (d.type * WIDTH) / TYPES_NUMBER;
 };
 
 const forceY = d => {
-  return (d.type * HEIGHT) / TYPES_NUMBER;
+  return (d.place * HEIGHT) / PLACES_NUMBER;
 };
 
 function wrap(text, width) {
@@ -90,52 +96,91 @@ function wrap(text, width) {
 
 d3.select("button.number").on("click", () => {
   svg
-    .selectAll("circle")
+    .selectAll(".circle")
     .transition()
-    .attr("r", d => numberRadiusScale(d.number));
+
+    .attr("rx", d => numberScale(Math.sqrt(d.number)))
+    .attr("ry", d => numberScale(Math.sqrt(d.number)))
+    .attr("width", d => numberScale(Math.sqrt(d.number)))
+    .attr("height", d => numberScale(Math.sqrt(d.number)))
+    .attr(
+      "transform",
+      d =>
+        `translate(${-numberScale(
+          Math.sqrt(d.number)
+        )/2}, ${-numberScale(Math.sqrt(d.number))/2})`
+    )
+    .style("display", null)
 });
 
 d3.select("button.damage").on("click", () => {
   svg
-    .selectAll("circle")
+    .selectAll(".circle")
     .transition()
-    .attr("r", d => damageRadiusScale(d.damageAverage));
+    .attr("rx", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("ry", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("width", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("height", d =>damageScale(Math.sqrt(d.damageAverage)))
+    .attr(
+      "transform",
+      d =>
+        `translate(${-damageScale(
+          Math.sqrt(d.damageAverage)
+        )/2}, ${-damageScale(Math.sqrt(d.damageAverage))/2})`
+    )
+    .style("display", null)
 });
 
-const yScale = d3
-  .scaleLinear()
-  .range([0, HEIGHT])
-  .domain([0, TYPES_NUMBER]);
+d3.select("button.result").on("click", () => {
+  svg
+    .selectAll(".circle")
+    .transition()
+    .attr("rx", 0)
+    .attr("ry", 0)
+    .attr("height", d =>resultScale(d.requestedPercentage))
+    .attr("width", 30)
+    .style("display", d => d.place === 9 ? null : 'none')
+    .attr(
+      "transform",
+      d =>
+        d.place === 9 && `translate(-15, ${-resultScale(d.requestedPercentage)})`
+    )
+});
 
 const xScale = d3
   .scaleLinear()
-  .range([0, WIDTH])
+  .range([0, HEIGHT])
   .domain([0, PLACES_NUMBER]);
 
-const xAxis = d3
-  .axisTop(xScale)
-  .tickValues(range(PLACES_NUMBER))
-  .tickFormat(id => places[id - 1]);
+const yScale = d3
+  .scaleLinear()
+  .range([0, WIDTH])
+  .domain([0, TYPES_NUMBER]);
 
-const yAxis = d3
-  .axisLeft(yScale)
+const xAxis = d3
+  .axisTop(yScale)
   .tickValues(range(TYPES_NUMBER))
   .tickFormat(id => types[id - 1]);
 
-svg
-  .append("g")
-  .attr("class", "axis x-axis")
-  .call(xAxis)
-  .selectAll(".tick text")
-  .call(wrap, 100)
-  .attr("transform", "translate(0, -50) rotate(-45)");
+const yAxis = d3
+  .axisLeft(xScale)
+  .tickValues(range(PLACES_NUMBER))
+  .tickFormat(id => places[id - 1]);
 
 svg
   .append("g")
   .attr("class", "axis y-axis")
+  .call(xAxis)
+  .selectAll(".tick text")
+  .call(wrap, 100)
+  .attr("transform", "translate(0, -20)");
+
+svg
+  .append("g")
+  .attr("class", "axis x-axis")
   .call(yAxis)
   .selectAll(".tick text")
-  .call(wrap, WIDTH / PLACES_NUMBER)
+  .call(wrap, 200)
   .attr("transform", "translate(-20, 0)");
 
 const render = () => {
@@ -170,7 +215,7 @@ const render = () => {
         .attr("stroke-width", "1px");
 
       d3.select(this.parentNode)
-        .selectAll("circle")
+        .selectAll(".circle")
         .raise();
       d3.select(this)
         .selectAll(".popover-el")
@@ -195,8 +240,8 @@ const render = () => {
 
   bubbles.exit().remove();
 
-  const circles = bubbles.select("circle").merge(bubblesEnter.append("circle"));
-  const rects = bubbles.select("rect").merge(bubblesEnter.append("rect"));
+  const circles = bubbles.select(".circle").merge(bubblesEnter.append("rect"));
+  const rects = bubbles.select("popover").merge(bubblesEnter.append("rect"));
 
   const newTexts = bubblesEnter.append("g").attr("class", "text-group");
 
@@ -226,7 +271,9 @@ const render = () => {
     .attr("class", "text-number")
     .text(
       d =>
-        `В ораны поступило обращение в ${(d.requestedPercentage * 100).toFixed(2)}%`
+        `В ораны поступило обращение в ${(d.requestedPercentage * 100).toFixed(
+          2
+        )}%`
     )
     .attr("y", 60)
     .attr("x", 6)
@@ -236,8 +283,7 @@ const render = () => {
     .append("text")
     .attr("class", "text-number")
     .text(
-      d =>
-        `Виновный был наказан в ${(d.punishedPercentage * 100).toFixed(2)}%`
+      d => `Виновный был наказан в ${(d.punishedPercentage * 100).toFixed(2)}%`
     )
     .attr("y", 80)
     .attr("x", 6)
@@ -249,7 +295,20 @@ const render = () => {
     .attr("class", "popover-el")
     .style("display", "none");
 
-  circles.attr("r", d => numberRadiusScale(d.number)).attr("fill", colorByType);
+  circles
+    .attr("rx", d => numberScale(Math.sqrt(d.number)))
+    .attr("ry", d => numberScale(Math.sqrt(d.number)))
+    .attr("width", d => numberScale(Math.sqrt(d.number)))
+    .attr("height", d => numberScale(Math.sqrt(d.number)))
+    .attr(
+      "transform",
+      d =>
+        `translate(${-numberScale(
+          Math.sqrt(d.number)
+        )/2}, ${-numberScale(Math.sqrt(d.number))/2})`
+    )
+    .attr("fill", colorByType)
+    .attr("class", "circle");
   rects
     .attr("class", "popover")
     .attr("class", "popover-el")
@@ -267,9 +326,10 @@ const render = () => {
 
 render();
 
+/*
 d3.csv("dataset.csv", d => {
   return {
-    crimePlace: d.crime_place,
+    crimePlace: d.crime_place_grouped,
     victimDamageRub: d.victim_damage_rub,
     crimeType: d.crime_type,
     isRequested: d.Q40,
@@ -284,11 +344,14 @@ d3.csv("dataset.csv", d => {
   for (const datum of dataFiltered) {
     const {
       crimePlace,
-      crimeType,
+      crimeType: ct,
       victimDamageRub: damage,
       isRequested,
       isPunished
     } = datum;
+
+    const crimeType = ct === "8" ? "7" : ct;
+
     if (!newDataObject[`${crimeType}_${crimePlace}`]) {
       newDataObject[`${crimeType}_${crimePlace}`] = {
         damage: 0,
@@ -299,6 +362,18 @@ d3.csv("dataset.csv", d => {
         punishedNumber: 0
       };
     }
+
+    if (!newDataObject[`${crimeType}_9`]) {
+      newDataObject[`${crimeType}_9`] = {
+        damage: 0,
+        number: 0,
+        type: parseInt(crimeType),
+        place: 9,
+        requestedNumber: 0,
+        punishedNumber: 0
+      };
+    }
+
     newDataObject[`${crimeType}_${crimePlace}`].number =
       newDataObject[`${crimeType}_${crimePlace}`].number + 1;
     newDataObject[`${crimeType}_${crimePlace}`].numberPercentage =
@@ -307,18 +382,36 @@ d3.csv("dataset.csv", d => {
     newDataObject[`${crimeType}_${crimePlace}`].damageAverage =
       newDataObject[`${crimeType}_${crimePlace}`].damage /
       newDataObject[`${crimeType}_${crimePlace}`].number;
-    newDataObject[`${crimeType}_${crimePlace}`].punishedNumber += parseInt(isPunished) === 1 ? 1 : 0;
-    newDataObject[`${crimeType}_${crimePlace}`].requestedNumber += parseInt(isRequested) === 1 ? 1 : 0;
+    newDataObject[`${crimeType}_${crimePlace}`].punishedNumber +=
+      parseInt(isPunished) === 1 ? 1 : 0;
+    newDataObject[`${crimeType}_${crimePlace}`].requestedNumber +=
+      parseInt(isRequested) === 1 ? 1 : 0;
     newDataObject[`${crimeType}_${crimePlace}`].requestedPercentage =
       newDataObject[`${crimeType}_${crimePlace}`].requestedNumber /
       newDataObject[`${crimeType}_${crimePlace}`].number;
     newDataObject[`${crimeType}_${crimePlace}`].punishedPercentage =
       newDataObject[`${crimeType}_${crimePlace}`].punishedNumber /
       newDataObject[`${crimeType}_${crimePlace}`].number;
+
+    newDataObject[`${crimeType}_9`].number =
+      newDataObject[`${crimeType}_9`].number + 1;
+    newDataObject[`${crimeType}_9`].numberPercentage =
+      newDataObject[`${crimeType}_9`].number / dataFiltered.length;
+    newDataObject[`${crimeType}_9`].damage += parseInt(damage, 10);
+    newDataObject[`${crimeType}_9`].damageAverage =
+      newDataObject[`${crimeType}_9`].damage /
+      newDataObject[`${crimeType}_9`].number;
+    newDataObject[`${crimeType}_9`].punishedNumber +=
+      parseInt(isPunished) === 1 ? 1 : 0;
+    newDataObject[`${crimeType}_9`].requestedNumber +=
+      parseInt(isRequested) === 1 ? 1 : 0;
+    newDataObject[`${crimeType}_9`].requestedPercentage =
+      newDataObject[`${crimeType}_9`].requestedNumber /
+      newDataObject[`${crimeType}_9`].number;
+    newDataObject[`${crimeType}_9`].punishedPercentage =
+      newDataObject[`${crimeType}_9`].punishedNumber /
+      newDataObject[`${crimeType}_9`].number;
   }
-  console.log(
-    JSON.stringify(
-      Object.values(newDataObject).filter(({ number }) => number > 10)
-    )
-  );
+  console.log(JSON.stringify(Object.values(newDataObject)));
 });
+*/
