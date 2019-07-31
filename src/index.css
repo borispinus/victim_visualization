@@ -1,7 +1,13 @@
 html {
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
+
 }
-body {
+
+html * {
+  box-sizing: border-box;
+}
+body > div{
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,9 +16,72 @@ body {
 svg {
   font-family: 'Roboto', sans-serif;
   padding-top: 100px;
+  padding-bottom: 50px;
   padding-left: 100px;
   overflow: visible;
 }
 .x-axis .tick:last-of-type {
   font-weight: bold;
+}
+
+.container {
+  position: relative;
+  padding-left: 24px;
+  margin-right: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.container .checkmark:after {
+  top: 6px;
+  left: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
 }

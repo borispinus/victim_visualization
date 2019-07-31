@@ -6,12 +6,27 @@
     <title>Victim chart</title>
   </head>
   <body>
-    <div class="buttons">
-      <button class="number">По количеству</button>
-      <button class="damage">По среднему ущербу</button>
-      <button class="result">Обращение и наказание</button>
+    <div>
+      <h2>Распределение преступлений по</h2>
+      <div class="radios">
+        <label class="container number"
+          >по количеству
+          <input type="radio" checked="checked" name="radio" />
+          <span class="checkmark"></span>
+        </label>
+        <label class="container damage"
+          >по среднему ущербу
+          <input type="radio" name="radio" />
+          <span class="checkmark"></span>
+        </label>
+        <label class="container result"
+          >по обращениям в органы и наказанию виновного (%)
+          <input type="radio" name="radio" />
+          <span class="checkmark"></span>
+        </label>
+      </div>
+      <svg class="chart-svg" />
     </div>
-    <svg class="chart-svg" />
     <script src="index.js"></script>
   </body>
 </html>

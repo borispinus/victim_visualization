@@ -9,10 +9,22 @@ const HEIGHT = 0.8 * window.outerHeight - 200;
 const PLACES_NUMBER = places.length;
 const TYPES_NUMBER = types.length;
 
+const chartView = {
+  number: 1,
+  damage: 2,
+  result: 3
+};
+
 const MAX_RADIUS =
   Math.min(WIDTH, HEIGHT) / Math.max(PLACES_NUMBER, TYPES_NUMBER);
 
 const COLOR = "#97BA86";
+const RESULT_COLOR = "#f58a42";
+const RESULT_COLOR_2 = "#FFC433";
+
+let currentType = chartView.number;
+
+const formatPercent = d3.format(".0%");
 
 const range = n => Array.from(Array(n + 1).keys());
 
@@ -20,6 +32,78 @@ const svg = d3
   .select(".chart-svg")
   .attr("width", WIDTH)
   .attr("height", HEIGHT);
+
+const resultData = data.filter(({ place }) => place === 9);
+
+const legend = svg
+  .append("g")
+  .attr("class", "legend")
+  .style("display", "none");
+
+legend
+  .append("text")
+  .text("Процент преступлений с")
+  .attr("x", WIDTH - 125)
+  .attr("y", 33);
+const legendEls = legend
+  .selectAll(".legend-el")
+  .data([1, 2])
+  .enter()
+  .append("g")
+  .attr("class", "legend-el");
+
+legendEls
+  .append("rect")
+  .attr("width", 20)
+  .attr("height", 20)
+  .attr("y", d => (d === 1 ? 50 : 80))
+  .attr("x", WIDTH - 125)
+  .attr("fill", d => (d === 1 ? RESULT_COLOR_2 : RESULT_COLOR));
+
+legendEls
+  .append("text")
+  .attr("width", 20)
+  .attr("height", 20)
+  .attr("y", d => (d === 1 ? 65 : 95))
+  .attr("x", WIDTH - 100)
+  .text(d => (d === 1 ? "наказанным виновным" : "обращениями в органы"));
+
+const svgDefs = svg.append("defs");
+
+const gradients = svgDefs
+  .selectAll("linearGradient")
+  .data(resultData)
+  .enter()
+  .append("linearGradient")
+  .attr("id", d => `gradient_${d.type}`)
+  .attr("x1", 0)
+  .attr("y1", 1)
+  .attr("x2", 0)
+  .attr("y2", 0);
+
+gradients
+  .append("stop")
+  .attr("offset", 0)
+  .style("stop-color", RESULT_COLOR)
+  .style("stop-opacity", 1);
+
+gradients
+  .append("stop")
+  .attr("offset", d => d.punishedPercentage / d.requestedPercentage)
+  .style("stop-color", RESULT_COLOR)
+  .style("stop-opacity", 1);
+
+gradients
+  .append("stop")
+  .attr("offset", d => d.punishedPercentage / d.requestedPercentage)
+  .style("stop-color", RESULT_COLOR_2)
+  .style("stop-opacity", 1);
+
+gradients
+  .append("stop")
+  .attr("offset", 1)
+  .style("stop-color", RESULT_COLOR_2)
+  .style("stop-opacity", 1);
 
 const numberScale = d3
   .scaleLinear()
@@ -94,63 +178,104 @@ function wrap(text, width) {
   });
 }
 
-d3.select("button.number").on("click", () => {
+d3.select(".number").on("click", () => {
+  currentType = chartView.number;
   svg
     .selectAll(".circle")
     .transition()
-
     .attr("rx", d => numberScale(Math.sqrt(d.number)))
     .attr("ry", d => numberScale(Math.sqrt(d.number)))
     .attr("width", d => numberScale(Math.sqrt(d.number)))
     .attr("height", d => numberScale(Math.sqrt(d.number)))
+    .attr("fill", colorByType)
     .attr(
       "transform",
       d =>
-        `translate(${-numberScale(
+        `translate(${-numberScale(Math.sqrt(d.number)) / 2}, ${-numberScale(
           Math.sqrt(d.number)
-        )/2}, ${-numberScale(Math.sqrt(d.number))/2})`
+        ) / 2})`
     )
-    .style("display", null)
+    .style("opacity", 1);
+
+  svg
+    .select(".x-axis")
+    .call(yAxis.tickFormat(id => places.slice(0, -1).concat("Всего")[id - 1]))
+    .selectAll(".tick text")
+    .call(wrap, 220)
+    .attr("transform", "translate(-10, 0)");
+  legend.style("display", "none");
+  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "bold");
 });
 
-d3.select("button.damage").on("click", () => {
+d3.select(".damage").on("click", () => {
+  currentType = chartView.damage;
   svg
     .selectAll(".circle")
     .transition()
     .attr("rx", d => damageScale(Math.sqrt(d.damageAverage)))
     .attr("ry", d => damageScale(Math.sqrt(d.damageAverage)))
     .attr("width", d => damageScale(Math.sqrt(d.damageAverage)))
-    .attr("height", d =>damageScale(Math.sqrt(d.damageAverage)))
+    .attr("height", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("fill", colorByType)
     .attr(
       "transform",
       d =>
-        `translate(${-damageScale(
-          Math.sqrt(d.damageAverage)
-        )/2}, ${-damageScale(Math.sqrt(d.damageAverage))/2})`
+        `translate(${-damageScale(Math.sqrt(d.damageAverage)) /
+          2}, ${-damageScale(Math.sqrt(d.damageAverage)) / 2})`
     )
-    .style("display", null)
+    .style("opacity", 1);
+
+  svg
+    .select(".x-axis")
+    .call(
+      yAxis.tickFormat(id => places.slice(0, -1).concat("В среднем")[id - 1])
+    )
+    .selectAll(".tick text")
+    .call(wrap, 220)
+    .attr("transform", "translate(-10, 0)");
+  legend.style("display", "none");
+  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "bold");
 });
 
-d3.select("button.result").on("click", () => {
+d3.select(".result").on("click", () => {
+  currentType = chartView.result;
   svg
     .selectAll(".circle")
+    .attr("fill", d =>
+      d.place === 9 ? `url(#gradient_${d.type})` : colorByType(d)
+    )
     .transition()
     .attr("rx", 0)
     .attr("ry", 0)
-    .attr("height", d =>resultScale(d.requestedPercentage))
-    .attr("width", 30)
-    .style("display", d => d.place === 9 ? null : 'none')
-    .attr(
-      "transform",
-      d =>
-        d.place === 9 && `translate(-15, ${-resultScale(d.requestedPercentage)})`
+    .attr("height", d =>
+      d.place === 9 ? resultScale(d.requestedPercentage) : 0
     )
+    .attr("width", d => (d.place === 9 ? WIDTH / 15 : 0))
+    .attr("transform", d =>
+      d.place === 9
+        ? `translate(${-WIDTH / 30}, ${-resultScale(d.requestedPercentage)})`
+        : `translate(0, 0)`
+    )
+    .style("opacity", d => (d.place === 9 ? 1 : 0));
+
+  d3.select(".x-axis")
+    .call(d3.axisLeft(xScalePercaentage).tickFormat(formatPercent))
+    .selectAll(".tick text")
+    .call(wrap, 220)
+    .attr("transform", "translate(-10, 0)");
+  legend.style("display", null);
+  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "normal");
 });
 
 const xScale = d3
   .scaleLinear()
   .range([0, HEIGHT])
   .domain([0, PLACES_NUMBER]);
+
+const xScalePercaentage = d3
+  .scaleLinear()
+  .range([0, HEIGHT])
+  .domain([1, 0]);
 
 const yScale = d3
   .scaleLinear()
@@ -173,14 +298,17 @@ svg
   .call(xAxis)
   .selectAll(".tick text")
   .call(wrap, 100)
-  .attr("transform", "translate(0, -20)");
+  .attr(
+    "transform",
+    WIDTH < 600 ? "translate(0, -40) rotate(-45)" : "translate(0, -20)"
+  );
 
 svg
   .append("g")
   .attr("class", "axis x-axis")
   .call(yAxis)
   .selectAll(".tick text")
-  .call(wrap, 200)
+  .call(wrap, 220)
   .attr("transform", "translate(-20, 0)");
 
 const render = () => {
@@ -191,28 +319,36 @@ const render = () => {
   bubblesEnter
     .on("mouseover", function() {
       d3.select(this).raise();
-      d3.select(this)
-        .append("line")
-        .attr("class", "verticalGrid")
-        .attr("y2", d => -1 * forceY(d))
-        .attr("x2", 0);
 
-      d3.select(this)
-        .append("line")
-        .attr("class", "horizontalGrid")
-        .attr("y2", 0)
-        .attr("x2", d => -1 * forceX(d));
+      if (chartView.result !== currentType) {
+        d3.select(this)
+          .append("line")
+          .attr("class", "verticalGrid")
+          .attr("y2", d => -1 * forceY(d))
+          .attr("x2", 0);
 
-      d3.select(this)
-        .selectAll("line")
-        .attr("class", "horizontalGrid")
-        .attr("y1", 0)
-        .attr("x1", 0)
-        .attr("fill", "none")
-        .attr("shape-rendering", "crispEdges")
-        .attr("stroke-dasharray", 4)
-        .attr("stroke", COLOR)
-        .attr("stroke-width", "1px");
+        d3.select(this)
+          .append("line")
+          .attr("class", "horizontalGrid")
+          .attr("y2", 0)
+          .attr("x2", d => -1 * forceX(d));
+
+        d3.select(this)
+          .selectAll("line")
+          .attr("class", "horizontalGrid")
+          .attr("y1", 0)
+          .attr("x1", 0)
+          .attr("fill", "none")
+          .attr("shape-rendering", "crispEdges")
+          .attr("stroke-dasharray", 4)
+          .attr("stroke", COLOR)
+          .attr("stroke-width", "1px");
+      } else {
+        d3.selectAll(".popover-el").attr(
+          "transform",
+          d => `translate(0, -${(d.requestedPercentage * HEIGHT) / 2})`
+        );
+      }
 
       d3.select(this.parentNode)
         .selectAll(".circle")
@@ -233,6 +369,8 @@ const render = () => {
       d3.select(this)
         .selectAll("line")
         .remove();
+
+      d3.selectAll(".popover-el").attr("transform", "translate(0, 0)");
     })
     .attr("class", "bubble");
 
@@ -303,9 +441,9 @@ const render = () => {
     .attr(
       "transform",
       d =>
-        `translate(${-numberScale(
+        `translate(${-numberScale(Math.sqrt(d.number)) / 2}, ${-numberScale(
           Math.sqrt(d.number)
-        )/2}, ${-numberScale(Math.sqrt(d.number))/2})`
+        ) / 2})`
     )
     .attr("fill", colorByType)
     .attr("class", "circle");
