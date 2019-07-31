@@ -66,7 +66,7 @@ legendEls
   .attr("height", 20)
   .attr("y", d => (d === 1 ? 65 : 95))
   .attr("x", WIDTH - 100)
-  .text(d => (d === 1 ? "наказанным виновным" : "обращениями в органы"));
+  .text(d => (d === 1 ? "обращениями в органы":  "наказанным виновным"));
 
 const svgDefs = svg.append("defs");
 
