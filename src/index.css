@@ -36,6 +36,16 @@ svg {
   user-select: none;
 }
 
+.radios {
+  padding: 10px;
+}
+
+.container {
+  margin-bottom: 5px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
 /* Hide the browser's default radio button */
 .container input {
   position: absolute;

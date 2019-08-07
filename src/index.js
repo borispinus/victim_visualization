@@ -4,7 +4,7 @@ import { data, types, places } from "../mock";
 import "./index.css";
 
 const WIDTH = 0.5 * window.outerWidth - 100;
-const HEIGHT = 0.8 * window.outerHeight - 200;
+const HEIGHT = 0.65 * window.outerHeight - 200;
 
 const PLACES_NUMBER = places.length;
 const TYPES_NUMBER = types.length;
@@ -66,7 +66,7 @@ legendEls
   .attr("height", 20)
   .attr("y", d => (d === 1 ? 65 : 95))
   .attr("x", WIDTH - 100)
-  .text(d => (d === 1 ? "обращениями в органы":  "наказанным виновным"));
+  .text(d => (d === 1 ? "обращениями в органы" : "наказанным виновным"));
 
 const svgDefs = svg.append("defs");
 
@@ -177,95 +177,6 @@ function wrap(text, width) {
     }
   });
 }
-
-d3.select(".number").on("click", () => {
-  currentType = chartView.number;
-  svg
-    .selectAll(".circle")
-    .transition()
-    .attr("rx", d => numberScale(Math.sqrt(d.number)))
-    .attr("ry", d => numberScale(Math.sqrt(d.number)))
-    .attr("width", d => numberScale(Math.sqrt(d.number)))
-    .attr("height", d => numberScale(Math.sqrt(d.number)))
-    .attr("fill", colorByType)
-    .attr(
-      "transform",
-      d =>
-        `translate(${-numberScale(Math.sqrt(d.number)) / 2}, ${-numberScale(
-          Math.sqrt(d.number)
-        ) / 2})`
-    )
-    .style("opacity", 1);
-
-  svg
-    .select(".x-axis")
-    .call(yAxis.tickFormat(id => places.slice(0, -1).concat("Всего")[id - 1]))
-    .selectAll(".tick text")
-    .call(wrap, 220)
-    .attr("transform", "translate(-10, 0)");
-  legend.style("display", "none");
-  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "bold");
-});
-
-d3.select(".damage").on("click", () => {
-  currentType = chartView.damage;
-  svg
-    .selectAll(".circle")
-    .transition()
-    .attr("rx", d => damageScale(Math.sqrt(d.damageAverage)))
-    .attr("ry", d => damageScale(Math.sqrt(d.damageAverage)))
-    .attr("width", d => damageScale(Math.sqrt(d.damageAverage)))
-    .attr("height", d => damageScale(Math.sqrt(d.damageAverage)))
-    .attr("fill", colorByType)
-    .attr(
-      "transform",
-      d =>
-        `translate(${-damageScale(Math.sqrt(d.damageAverage)) /
-          2}, ${-damageScale(Math.sqrt(d.damageAverage)) / 2})`
-    )
-    .style("opacity", 1);
-
-  svg
-    .select(".x-axis")
-    .call(
-      yAxis.tickFormat(id => places.slice(0, -1).concat("В среднем")[id - 1])
-    )
-    .selectAll(".tick text")
-    .call(wrap, 220)
-    .attr("transform", "translate(-10, 0)");
-  legend.style("display", "none");
-  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "bold");
-});
-
-d3.select(".result").on("click", () => {
-  currentType = chartView.result;
-  svg
-    .selectAll(".circle")
-    .attr("fill", d =>
-      d.place === 9 ? `url(#gradient_${d.type})` : colorByType(d)
-    )
-    .transition()
-    .attr("rx", 0)
-    .attr("ry", 0)
-    .attr("height", d =>
-      d.place === 9 ? resultScale(d.requestedPercentage) : 0
-    )
-    .attr("width", d => (d.place === 9 ? WIDTH / 15 : 0))
-    .attr("transform", d =>
-      d.place === 9
-        ? `translate(${-WIDTH / 30}, ${-resultScale(d.requestedPercentage)})`
-        : `translate(0, 0)`
-    )
-    .style("opacity", d => (d.place === 9 ? 1 : 0));
-
-  d3.select(".x-axis")
-    .call(d3.axisLeft(xScalePercaentage).tickFormat(formatPercent))
-    .selectAll(".tick text")
-    .call(wrap, 220)
-    .attr("transform", "translate(-10, 0)");
-  legend.style("display", null);
-  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "normal");
-});
 
 const xScale = d3
   .scaleLinear()
@@ -383,49 +294,63 @@ const render = () => {
 
   const newTexts = bubblesEnter.append("g").attr("class", "text-group");
 
-  newTexts
+  const newTextsNumber = newTexts
     .append("text")
     .attr("class", "text-number")
-    .text(d => `${(d.numberPercentage * 100).toFixed(2)}% от общего количества`)
     .attr("y", 20)
     .attr("x", 6)
     .style("font-size", 10);
 
-  newTexts
+  newTextsNumber
+    .append("tspan")
+    .text(d => `${(d.numberPercentage * 100).toFixed(2)}% `)
+    .attr("class", "number-tspan")
+    .style("font-weight", "bold");
+  newTextsNumber.append("tspan").text("от числа преступлений");
+
+  const newTextsDamage = newTexts
     .append("text")
-    .attr("class", "text-number")
-    .text(
-      d =>
-        `Средний ущерб: ${parseInt(d.damageAverage).toLocaleString(undefined, {
-          minimumFractionDigits: 2
-        })} руб`
-    )
+    .attr("class", "text-damage")
     .attr("y", 40)
     .attr("x", 6)
     .style("font-size", 10);
 
-  newTexts
-    .append("text")
-    .attr("class", "text-number")
+  newTextsDamage.append("tspan").text("Средний ущерб: ");
+  newTextsDamage
+    .append("tspan")
+    .attr("class", "damage-tspan")
     .text(
       d =>
-        `В ораны поступило обращение в ${(d.requestedPercentage * 100).toFixed(
-          2
-        )}%`
-    )
+        `${parseInt(d.damageAverage).toLocaleString(undefined, {
+          minimumFractionDigits: 2
+        })} руб.`
+    );
+
+  const newTextsRequested = newTexts
+    .append("text")
+    .attr("class", "text-requested")
     .attr("y", 60)
     .attr("x", 6)
     .style("font-size", 10);
 
-  newTexts
+  newTextsRequested.append("tspan").text("В органы поступило обращение в ");
+  newTextsRequested
+    .append("tspan")
+    .attr("class", "result-tspan")
+    .text(d => `${(d.requestedPercentage * 100).toFixed(2)}%`);
+
+  const newTextsPunished = newTexts
     .append("text")
     .attr("class", "text-number")
-    .text(
-      d => `Виновный был наказан в ${(d.punishedPercentage * 100).toFixed(2)}%`
-    )
     .attr("y", 80)
     .attr("x", 6)
     .style("font-size", 10);
+
+  newTextsPunished.append("tspan").text("Виновный был наказан в ");
+  newTextsPunished
+    .append("tspan")
+    .attr("class", "result-tspan")
+    .text(d => `${(d.punishedPercentage * 100).toFixed(2)}%`);
 
   const texts = bubbles
     .select(".text-group")
@@ -451,7 +376,7 @@ const render = () => {
     .attr("class", "popover")
     .attr("class", "popover-el")
     .style("display", "none")
-    .attr("width", 220)
+    .attr("width", 250)
     .attr("height", 100)
     .attr("stroke", "#1a1f01")
     .attr("fill", "#fff");
@@ -462,9 +387,109 @@ const render = () => {
     .force("forceY", d3.forceY(forceY).strength(0.1));
 };
 
+d3.select(".number").on("click", () => {
+  currentType = chartView.number;
+  svg
+    .selectAll(".circle")
+    .transition()
+    .attr("rx", d => numberScale(Math.sqrt(d.number)))
+    .attr("ry", d => numberScale(Math.sqrt(d.number)))
+    .attr("width", d => numberScale(Math.sqrt(d.number)))
+    .attr("height", d => numberScale(Math.sqrt(d.number)))
+    .attr("fill", colorByType)
+    .attr(
+      "transform",
+      d =>
+        `translate(${-numberScale(Math.sqrt(d.number)) / 2}, ${-numberScale(
+          Math.sqrt(d.number)
+        ) / 2})`
+    )
+    .style("opacity", 1);
+
+  svg
+    .select(".x-axis")
+    .call(yAxis.tickFormat(id => places.slice(0, -1).concat("Всего")[id - 1]))
+    .selectAll(".tick text")
+    .call(wrap, 220)
+    .attr("transform", "translate(-10, 0)");
+  legend.style("display", "none");
+  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "bold");
+  d3.selectAll(".number-tspan").style("font-weight", "bold");
+  d3.selectAll(".damage-tspan").style("font-weight", "normal");
+  d3.selectAll(".result-tspan").style("font-weight", "normal");
+});
+
+d3.select(".damage").on("click", () => {
+  currentType = chartView.damage;
+  svg
+    .selectAll(".circle")
+    .transition()
+    .attr("rx", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("ry", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("width", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("height", d => damageScale(Math.sqrt(d.damageAverage)))
+    .attr("fill", colorByType)
+    .attr(
+      "transform",
+      d =>
+        `translate(${-damageScale(Math.sqrt(d.damageAverage)) /
+          2}, ${-damageScale(Math.sqrt(d.damageAverage)) / 2})`
+    )
+    .style("opacity", 1);
+
+  svg
+    .select(".x-axis")
+    .call(
+      yAxis.tickFormat(id => places.slice(0, -1).concat("В среднем")[id - 1])
+    )
+    .selectAll(".tick text")
+    .call(wrap, 220)
+    .attr("transform", "translate(-10, 0)");
+  legend.style("display", "none");
+  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "bold");
+
+  d3.selectAll(".number-tspan").style("font-weight", "normal");
+  d3.selectAll(".damage-tspan").style("font-weight", "bold");
+  d3.selectAll(".result-tspan").style("font-weight", "normal");
+});
+
+d3.select(".result").on("click", () => {
+  currentType = chartView.result;
+  svg
+    .selectAll(".circle")
+    .attr("fill", d =>
+      d.place === 9 ? `url(#gradient_${d.type})` : colorByType(d)
+    )
+    .transition()
+    .attr("rx", 0)
+    .attr("ry", 0)
+    .attr("height", d =>
+      d.place === 9 ? resultScale(d.requestedPercentage) : 0
+    )
+    .attr("width", d => (d.place === 9 ? WIDTH / 15 : 0))
+    .attr("transform", d =>
+      d.place === 9
+        ? `translate(${-WIDTH / 30}, ${-resultScale(d.requestedPercentage)})`
+        : `translate(0, 0)`
+    )
+    .style("opacity", d => (d.place === 9 ? 1 : 0));
+
+  d3.select(".x-axis")
+    .call(d3.axisLeft(xScalePercaentage).tickFormat(formatPercent))
+    .selectAll(".tick text")
+    .call(wrap, 220)
+    .attr("transform", "translate(-10, 0)");
+  legend.style("display", null);
+  d3.select(".x-axis .tick:last-of-type ").style("font-weight", "normal");
+
+  d3.selectAll(".number-tspan").style("font-weight", "normal");
+  d3.selectAll(".damage-tspan").style("font-weight", "normal");
+  d3.selectAll(".result-tspan").style("font-weight", "bold");
+});
+
 render();
 
-/*
+/*src/index.js:470
 d3.csv("dataset.csv", d => {
   return {
     crimePlace: d.crime_place_grouped,
